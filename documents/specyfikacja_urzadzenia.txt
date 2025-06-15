@@ -1,0 +1,101 @@
+SPECYFIKACJA URZĄDZENIA DO NAWIJANIA CEWEK NA KARKASACH
+
+
+1. PRZEZNACZENIE URZĄDZENIA
+	Urządzenie służy do precyzyjnego nawijania cewek na karkasach. Użytkownik steruje urządzeniem za pomocą komend przesyłanych przez interfejs szeregowy (Serial).
+
+
+2. ELEMENTY NAPĘDOWE
+	- Silnik A (krokowy): odpowiada za liniowy posuw wrzeciona, tj. za skok uzwojenia (gęstość ułożenia zwojów).
+	- Silnik B (krokowy): odpowiada za liczbę wykonanych zwojów, obracając karkas.
+	- Serwomechanizm 360°: w przyszłości planowany do sterowania naciągiem drutu (na razie niezaimplementowany).
+
+
+3. SEKWENCJA URUCHAMIANIA
+	- Po starcie systemu silnik A zeruje się na podstawie krańcówki.
+	- Silnik B pozostaje nieaktywny.
+	- Program informuje w konsoli, że jest gotowy na komendy.
+
+
+4. KONFIGUROWALNE PARAMETRY CEWKI
+	Użytkownik może ustawić:
+	- Szerokość karkasu (mm/um)
+	- Średnicę drutu nawojowego (mm/um)
+	- Początek i koniec pozycji nawijania lub alternatywnie początek nawijania cewki i szerokość cewki - uwaga nie można wyjść poza szerokość karkasu
+	- Liczbę zwojów
+	- Gęstość nawijania (pitch) – nie mniejsza niż średnica drutu
+	- Kierunek obrotowy (CW/CCW)
+	- Kierunek z której strony rozpoczyna pracę wrzeciono (z lewej lub z prawej)
+	- Prędkość obrotowa normalnej pracy nawijania (domyślnie 60 RPM)
+	- Liczba zwojów z wolną prędkością na początek/koniec warstwy (domyślnie 5)
+	- Liczba zwojów bez ruchu wrzeciona przy przejściu na kolejną warstwę (domyślnie 2)
+
+
+5. DODATKOWE KOMENDY FUNKCJE UŻYTKOWNIKA
+	- Wyświetlanie aktualnych parametrów cewki
+	- Obrót karkasa o zadany kąt (max 360°, 10 RPM)
+	- Obrót karkasa o zadaną liczbę obrotów (pełne obroty, 6 RPM)
+	- Awaryjne zatrzymanie przyciskiem i komendą (przycisk na pinie 24)
+	- Wznawianie przerwanej komendy funkcją "Awaryjne zatrzymanie" (po awaryjnym zatrzymaniu pytanie o wznowienie pracy z ostatniego stanu przed zatrzymaniem)
+	- Komenda „help” wyświetla dostępne polecenia
+
+
+6. PROCES NAWIJANIA (KOMENDA „BEGIN”)
+	1. Wyświetlenie wszystkich parametrów i zapytanie o potwierdzenie czy wszystko się zgadza (oczekiwanie na "tak" lub "nie").
+	2. Ustawienie wrzeciona w pozycji początkowej.
+	3. Prośba o zaczepienie drutu (oczekiwanie na „zrobione” lub „anuluj”).
+	4. Zablokowanie możliwości zmiany parametrów cewki do momentu zakończenia lub przerwania procesu nawijania. (Przerwanie procesu nawijania rozumiane jak zgodę na 
+		Awaryjne zatrzymanie bez wznowienia przerwanego procesu/komendy/funkcji).
+	5. Ostrzeżenie i 30-sekundowe opóźnienie z odliczaniem.
+	5. Rozpoczęcie nawijania wolno – 10 obr/min (Tyle zwojów ile zdefiniował użytkownik "Liczba zwojów z wolną prędkością na początek/koniec warstwy", dodatkowo ten 
+		fragment nawijany z pitch równym "Średnicę drutu nawojowego").
+	6. Przejście na wyższą prędkość z ustawionym skokiem (Taka prędkość jaką zdefiniował użytkownik jako "Prędkość obrotowa normalnej pracy nawijania", pitch w tym 
+		etapie zadany przez użytkownika ).
+	7. Przed końcem warstwy/końcem nawijania cewki – spowolnienie do 10 obr/min na ostatnie zwoje (Tyle zwojów przed ile zdefiniował użytkownik "Liczba zwojów 
+		z wolną prędkością na początek/koniec warstwy", dodatkowo ten fragment nawijany z pitch równym "Średnicę drutu nawojowego").
+	8. Jeśli to koniec to zatrzymanie nawijania i przejście do kroku 12, jeśli nawija kolejną warstwę to przejście do kroku 9.
+	9. Zatrzymanie wrzeciona, wykonanie określonej liczby zwojów bez ruchu wrzeciona (Liczba zwojów określona przez użytkownika w zmiennej "Liczba zwojów bez ruchu 
+		wrzeciona przy przejściu na kolejną warstwę", prędkość obrotowa 10 obr/min).
+	10. Rozpoczęcie nawijania nowej warstwy wolno – 10 obr/min, zmiana kierunku wrzeciona w przeciwną stronę do poprzedniej warstwy, ale tym samym kierunku obrotowym 
+		karkasa.(Tyle zwojów ile wychodzi z działania na zmiennych uzytkownika = "Liczba zwojów z wolną prędkością na początek/koniec warstwy" - "Liczba zwojów 
+		bez ruchu wrzeciona przy przejściu na kolejną warstwę", dodatkowo ten fragment nawijany z pitch równym "Średnicę drutu nawojowego").
+	11. Przejście do kroku 6.
+	12. Po zakończeniu – komunikat o zakończeniu i prośba o zabezpieczenie uzwojenia.
+
+
+7. ZAŁOŻENIA DOTYCZĄCE KODU
+	- Zmienne i stałe przechowywane w osobnym pliku konfiguracyjnym.
+	- Czytelny podział kodu na moduły i funkcje pomocnicze.
+	- Możliwość łatwej rozbudowy i debugowania.
+	- Ograniczenia parametrów mechanicznych zapisane jako stałe, żeby np użytkownik nie mógł podać większych wartości niż wynikają z ograniczeń fizycznych urządzenia 
+		(np. maksymalne RPM).
+	- Funkcje posiadają komentarze co robią
+	- Zmienne i stałe posiadają komentarze od czego są
+	- Struktury logiczne również są skomentowane (struktury logiczne jak if, while, for itp.)
+
+
+8. DODATKOWE USPRAWNIENIA I FUNKCJONALNOŚCI OPROGRAMOWANIA
+	- Zapis stanu do pamięci Flash Arduino Due (w przypadku zaniku zasilania)
+	- Postęp % i szacowany czas zakończenia (ETA)
+	- Możliwość przełączania między protokołem ASCII i JSON przez dedykowany pin
+	- Tryb diagnostyczny – test silników i krańcówek
+	- Tryb Dry Run – cewka się „nawija” bez zasilania silników pojawiają się na konsoli komunikaty w jaki sposób steruje (Taki tryb debug, czyli całe urządzenie 
+		działa normalnie, ale wyłączone są silniki, a każda funkcja jaka się odblokowane ma wysyłanie informacji o stanie co robi np. funkcja "Ustawienie parametru 
+		Szerokość Karkasu")
+
+
+9. PARAMETRY SPRZĘTOWE I PINOUT (USTAWIC JAKO STALE W PLIKU KONFIGURACYJNYM)
+	- Skok śruby trapezowej: 2 mm (średnica 8 mm, długość 200 mm)
+	- Mikrokrok: 1/16 (konfigurowalne dla obu silników)
+	- Silniki: 200 kroków na obrót
+	- Krańcówka: Normalnie otwarta (NO)
+	- Pin wyboru protokołu: 22
+	- Przycisk STOP: pin 24
+	- Piny DRV8825:
+		- Silnik A: DIR Pin 7, STEP Pin 6, ENABLE Pin 8
+		- Silnik B: DIR Pin 4, STEP Pin 5, ENABLE Pin 12
+
+
+10. WYMAGANIA DOT. PAMIĘCI
+	- Konfiguracja zapisywana jako struktura (np. `CoilParams`) do Flash
+	- W przypadku przerwania nawijania możliwe wznowienie od danego etapu
