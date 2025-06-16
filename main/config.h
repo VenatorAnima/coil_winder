@@ -24,4 +24,7 @@ constexpr int MAX_RPM = 100;
 // true = NO (normalnie otwarta), false = NC (normalnie zamknięta)
 constexpr bool ENDSTOP_NORMALLY_OPEN = true;
 
+// Konfiguracja dla przycisku STOP_BUTTON
+// true = NO (normalnie otwarta), false = NC (normalnie zamknięta)
+constexpr bool STOP_BUTTON_NORMALLY_OPEN = true;
 #endif // CONFIG_H

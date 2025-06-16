@@ -3,16 +3,24 @@
 #include "config.h"
 #include "pins.h"
 #include "MotorControl.h"
+#include "InputManager.h"
 
 // Globalny obiekt dla silnika A
 StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
 
-// Sprawdza stan krańcówki z uwzględnieniem NO/NC
-bool readEndstop() {
-  bool raw = digitalRead(ENDSTOP_PIN);
-  // Jeśli krańcówka NO, to HIGH = niezwarty; dla NC odwrotnie.
-  return ENDSTOP_NORMALLY_OPEN ? !raw : raw;
-}
+// // Sprawdza stan krańcówki z uwzględnieniem NO/NC
+// bool readEndstop() {
+//   bool raw = digitalRead(ENDSTOP_PIN);
+//   // Jeśli krańcówka NO, to HIGH = niezwarty; dla NC odwrotnie.
+//   return ENDSTOP_NORMALLY_OPEN ? !raw : raw;
+// }
+// // Sprawdzanie stanu przycisku STOP z uwzględnieniem NO/NC
+// bool readStopButton() {
+//   bool raw = digitalRead(STOP_BUTTON_PIN);
+//   // Jeśli przycisk to NO, to HIGH = niezwarty; dla NC odwrotnie.
+//   return STOP_BUTTON_NORMALLY_OPEN ? !raw : raw;
+// }
+
 
 void setup() {
   // Uruchomienie komunikacji szeregowej
@@ -20,7 +28,10 @@ void setup() {
   while (!Serial) { /* czekaj na otwarcie portu */ }
 
   // Konfiguracja wejścia krańcówki i selection pinu protokołu
-  pinMode(ENDSTOP_PIN, INPUT_PULLUP);
+  // pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
+  // pinMode(ENDSTOP_PIN, INPUT_PULLUP);
+  stopButton.begin();
+  endstopA.begin();
   pinMode(PROTOCOL_SELECT_PIN, INPUT_PULLUP);
 
   // Włączenie silnika A na potrzeby testu
