@@ -1,6 +1,10 @@
 // InputManager.cpp
 #include "InputManager.h"
 
+// Instantiate global objects using config constants
+DebouncedInput stopButton(STOP_BUTTON_PIN, STOP_BUTTON_NORMALLY_OPEN);
+DebouncedInput endstopA(ENDSTOP_PIN, ENDSTOP_NORMALLY_OPEN);
+
 // Constructor: store pin, type, and debounce settings
 DebouncedInput::DebouncedInput(uint8_t pin, bool normallyOpen, uint16_t debounceDelay)
     : _pin(pin),
@@ -57,7 +61,3 @@ bool DebouncedInput::readState() {
 bool DebouncedInput::computeState(bool raw) {
     return _normOpen ? !raw : raw;
 }
-
-// Instantiate global objects using config constants
-DebouncedInput stopButton(STOP_BUTTON_PIN, STOP_BUTTON_NORMALLY_OPEN);
-DebouncedInput endstopA(ENDSTOP_PIN, ENDSTOP_NORMALLY_OPEN);

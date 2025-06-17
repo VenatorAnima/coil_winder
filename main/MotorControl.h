@@ -5,30 +5,27 @@
 #include <Arduino.h>
 
 /**
- * @brief Klasa obsługująca pojedynczy silnik krokowy (pełny krok)
- * 
- * Opakowuje bezpośrednie sterowanie pinami DIR/STEP/ENABLE
- * i zapewnia prosty interfejs move(), enable(), disable().
+ * @brief Wraps raw DIR/STEP/ENABLE for one stepper in full-step mode.
  */
 class StepperDriver {
 public:
   /**
-   * @param dirPin   Numer pinu DIR
-   * @param stepPin  Numer pinu STEP
-   * @param enPin    Numer pinu ENABLE (aktywny LOW)
+   * @param dirPin   DIR
+   * @param stepPin  STEP
+   * @param enPin    ENABLE (actvie LOW)
    */
   StepperDriver(uint8_t dirPin, uint8_t stepPin, uint8_t enPin);
 
-  // Ustawia kierunek obrotu: false = CW/prawo, true = CCW/lewo
+  // false = CW/right, true = CCW/left
   void setDirection(bool cw);
 
-  // Wykonuje jeden pełny krok (z blokowaniem czasu)
+  /// Generate one microstep pulse (blocking)
   void step();
 
-  // Włącza silnik (ENABLE = LOW)
+  /// ENABLE = LOW → motor on
   void enable();
 
-  // Wyłącza silnik (ENABLE = HIGH)
+  /// ENABLE = HIGH → motor off
   void disable();
 
 private:

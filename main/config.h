@@ -3,28 +3,25 @@
 #define CONFIG_H
 
 // --- MECHANICAL CONSTANTS ---
-// Skok trapezowej śruby lead-screw (mm na obrót)
+// Lead of trapezoidal screw [mm/rev]
 constexpr float SCREW_LEAD_MM = 2.0f;
-// Średnica śruby (mm)
+// Screw diameter [mm]
 constexpr float SCREW_DIAMETER_MM = 8.0f;
-// Długość śruby (mm)
+// Screw length [mm]
 constexpr float SCREW_LENGTH_MM = 200.0f;
 
-// Liczba kroków na obrót silnika (pełny krok)
+// Steps per revolution (full step)
 constexpr int STEPS_PER_REV = 200;
-// Mikrokrok (np. 16 => 1/16 mikrokrok)
+// Microstepping (e.g., 32 = 1/32 microstep)
 constexpr int MICROSTEPS = 32;
 
-// Domyślne prędkości obrotowe
-constexpr int DEFAULT_RPM = 60;        // domyślne RPM w trybie nawijania
-// TODO: uzupełnić maksymalne RPM wg. ograniczeń mechanicznych urządzenia
-constexpr int MAX_RPM = 100;
+// Default and maximum RPM
+constexpr int DEFAULT_RPM          = 60;   // default winding speed
+constexpr int MAX_RPM              = 150;  // measured safe maximum
 
-// Konfiguracja krańcówki silnika A
-// true = NO (normalnie otwarta), false = NC (normalnie zamknięta)
-constexpr bool ENDSTOP_NORMALLY_OPEN = true;
-
-// Konfiguracja dla przycisku STOP_BUTTON
-// true = NO (normalnie otwarta), false = NC (normalnie zamknięta)
+// Endstop type for axis A: true = NO, false = NC
+constexpr bool ENDSTOP_NORMALLY_OPEN     = true;
+// Emergency STOP button type: true = NO, false = NC
 constexpr bool STOP_BUTTON_NORMALLY_OPEN = true;
+
 #endif // CONFIG_H
