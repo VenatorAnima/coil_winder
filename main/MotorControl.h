@@ -19,7 +19,7 @@ public:
    */
   StepperDriver(uint8_t dirPin, uint8_t stepPin, uint8_t enPin);
 
-  // Ustawia kierunek obrotu: true = CW, false = CCW
+  // Ustawia kierunek obrotu: false = CW/prawo, true = CCW/lewo
   void setDirection(bool cw);
 
   // Wykonuje jeden pełny krok (z blokowaniem czasu)

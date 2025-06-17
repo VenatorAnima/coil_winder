@@ -13,7 +13,7 @@ constexpr float SCREW_LENGTH_MM = 200.0f;
 // Liczba kroków na obrót silnika (pełny krok)
 constexpr int STEPS_PER_REV = 200;
 // Mikrokrok (np. 16 => 1/16 mikrokrok)
-constexpr int MICROSTEPS = 16;
+constexpr int MICROSTEPS = 32;
 
 // Domyślne prędkości obrotowe
 constexpr int DEFAULT_RPM = 60;        // domyślne RPM w trybie nawijania

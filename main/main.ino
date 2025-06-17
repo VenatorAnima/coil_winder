@@ -5,22 +5,9 @@
 #include "MotorControl.h"
 #include "InputManager.h"
 
-// Globalny obiekt dla silnika A
+// Globalny obiekt dla silnika A i B
 StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
-
-// // Sprawdza stan krańcówki z uwzględnieniem NO/NC
-// bool readEndstop() {
-//   bool raw = digitalRead(ENDSTOP_PIN);
-//   // Jeśli krańcówka NO, to HIGH = niezwarty; dla NC odwrotnie.
-//   return ENDSTOP_NORMALLY_OPEN ? !raw : raw;
-// }
-// // Sprawdzanie stanu przycisku STOP z uwzględnieniem NO/NC
-// bool readStopButton() {
-//   bool raw = digitalRead(STOP_BUTTON_PIN);
-//   // Jeśli przycisk to NO, to HIGH = niezwarty; dla NC odwrotnie.
-//   return STOP_BUTTON_NORMALLY_OPEN ? !raw : raw;
-// }
-
+StepperDriver motorB(B_DIR_PIN, B_STEP_PIN, B_ENABLE_PIN);
 
 void setup() {
   // Uruchomienie komunikacji szeregowej
@@ -28,14 +15,13 @@ void setup() {
   while (!Serial) { /* czekaj na otwarcie portu */ }
 
   // Konfiguracja wejścia krańcówki i selection pinu protokołu
-  // pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
-  // pinMode(ENDSTOP_PIN, INPUT_PULLUP);
   stopButton.begin();
   endstopA.begin();
   pinMode(PROTOCOL_SELECT_PIN, INPUT_PULLUP);
 
-  // Włączenie silnika A na potrzeby testu
-  motorA.enable();
+  // Wylaczenie silnikow, zeby sie nie grzaly w spoczynku
+  motorA.disable();
+  motorB.disable();
 
   Serial.println(F("READY"));  // informacja o gotowości
 }
@@ -45,14 +31,54 @@ void loop() {
   if (Serial.available()) {
     String cmd = Serial.readStringUntil('\n');
     cmd.trim();
-    if (cmd.equalsIgnoreCase("testA")) {
-      // Ustawiamy kierunek CW (=true)
+    if (cmd.equalsIgnoreCase("testA_left")) {
+      // Wlaczenie silnika i ustawienie kierunku obrotu silnka
+      motorA.enable();
       motorA.setDirection(true);
-      // 200 kroków = jeden obrót
-      for (int i = 0; i < STEPS_PER_REV; ++i) {
+      // ruch wrzeciona w lewo o 10mm
+      for (int i = 0; i < (STEPS_PER_REV*MICROSTEPS/8*10); ++i) {
         motorA.step();
-      }
-      Serial.println(F("testA OK"));
+      };
+      motorA.disable();
+      Serial.println(F("testA_left OK"));
+    }
+    
+    if (cmd.equalsIgnoreCase("testA_right")) {
+      // Wlaczenie silnika i ustawienie kierunku obrotu silnka
+      motorA.enable();
+      motorA.setDirection(false);
+      // ruch wrzeciona w prawo o 10mm
+      for (int i = 0; i < (STEPS_PER_REV*MICROSTEPS/8*10); ++i) {
+        motorA.step();
+      };
+      motorA.disable();
+      Serial.println(F("testA_right OK"));
+    }
+    
+    if (cmd.equalsIgnoreCase("testB_clockwise")) {
+      // Wlaczenie silnika i ustawienie kierunku obrotu silnka
+      motorB.enable();
+      motorB.setDirection(false);
+      // 50 obrotow zgodnie do ruchu wskazowek zegara
+      for (int i = 0; i < (50*STEPS_PER_REV*MICROSTEPS); ++i) {
+        motorB.step();
+        //delay(500);
+      };
+      motorB.disable();
+      Serial.println(F("testB OK"));
+    }
+
+    if (cmd.equalsIgnoreCase("testB_counterclockwise")) {
+      // Wlaczenie silnika i ustawienie kierunku obrotu silnka
+      motorB.enable();
+      motorB.setDirection(true);
+      // 50 obrotow przeciwnie do ruchu wskazowek zegara
+      for (int i = 0; i < (50*STEPS_PER_REV*MICROSTEPS); ++i) {
+        motorB.step();
+        //delay(500);
+      };
+      motorB.disable();
+      Serial.println(F("testB OK"));
     }
   }
 }

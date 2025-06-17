@@ -19,9 +19,9 @@ void StepperDriver::setDirection(bool cw) {
 void StepperDriver::step() {
   // Pełny krok: krótkie pulsy na STEP
   digitalWrite(_stepPin, HIGH);
-  delayMicroseconds(100);        // czas trwania sygnału (do optymalizacji)
+  delayMicroseconds(31);        // czas trwania sygnału (do optymalizacji)
   digitalWrite(_stepPin, LOW);
-  delayMicroseconds(100);
+  delayMicroseconds(31);
 }
 
 void StepperDriver::enable() {
