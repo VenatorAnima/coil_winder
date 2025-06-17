@@ -2,8 +2,8 @@
 #include "InputManager.h"
 
 // Instantiate global objects using config constants
-DebouncedInput stopButton(STOP_BUTTON_PIN, STOP_BUTTON_NORMALLY_OPEN, 5);
-DebouncedInput endstopA(ENDSTOP_PIN, ENDSTOP_NORMALLY_OPEN, 1);
+DebouncedInput stopButton(STOP_BUTTON_PIN, STOP_BUTTON_NORMALLY_OPEN, 10);
+DebouncedInput endstopA(ENDSTOP_PIN, ENDSTOP_NORMALLY_OPEN, 10);
 
 // Constructor: store pin, type, and debounce settings
 DebouncedInput::DebouncedInput(uint8_t pin, bool normallyOpen, uint16_t debounceDelay)
@@ -51,6 +51,12 @@ bool DebouncedInput::readState() {
         }
     }
     return _lastStableState;
+}
+
+bool DebouncedInput::rawState() {
+  bool raw = digitalRead(_pin);
+  // map NO/NC exactly jak w computeState, ale od razu
+  return _normOpen ? !raw : raw;
 }
 
 /**

@@ -39,6 +39,9 @@ public:
      */
     bool readState();
 
+    /// Bypass debounce: raw HIGH/LOW -> logical state
+    bool rawState();
+
 private:
     uint8_t _pin;               ///< Arduino pin number for the input
     bool _normOpen;             ///< true=NO, false=NC behavior

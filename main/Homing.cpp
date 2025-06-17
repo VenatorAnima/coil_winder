@@ -46,11 +46,9 @@ static void stepDistance(float mm, float speed_mm_s) {
  * @brief Helper: step until endstopA is hit, at speed [mm/s].
  */
 static void stepUntilEndstop(float speed_mm_s) {
-  
   uint32_t delayUs = speedToDelayUs(speed_mm_s);
   motorA.enable();
-  delay(100);
-  while (!endstopA.readState()) {
+  while (!endstopA.rawState()) {
     motorA.step();
     delayMicroseconds(delayUs);
   }
@@ -77,7 +75,6 @@ void homeSpindle() {
   }
   // *** comon ***
   motorA.setDirection(true);     // CCW
-  endstopA.readState();
   stepUntilEndstop(1.0f);         // CCW until hit @ 1 mm/s
 
   // 2) Soft-offset 1 mm CW → position zero
