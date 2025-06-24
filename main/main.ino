@@ -4,23 +4,26 @@
 #include "pins.h"
 #include "MotorControl.h"
 #include "InputManager.h"
-#include "Homing.h"
+#include "Spindle.h"
 
 // Two steppers: A = spindle, B = frame
-StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
+// StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
+Spindle motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
 StepperDriver motorB(B_DIR_PIN, B_STEP_PIN, B_ENABLE_PIN);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
+    while (!Serial);
 
   // init inputs
   stopButton.begin();
   endstopA.begin();
   pinMode(PROTOCOL_SELECT_PIN, INPUT_PULLUP);
 
-  // disable both motors
-  motorA.disable();
+  // motors
+  motorA.enable();
+  motorA.home();
+  
   motorB.disable();
 
   Serial.println(F("READY"));
@@ -52,48 +55,44 @@ void loop() {
     cmd.trim();
 
     if (cmd.equalsIgnoreCase("home")) {
-      homeSpindle();
+      // homeSpindle();
+      motorA.home();
       Serial.println(F("HOMING OK"));
     }
     else if (cmd.equalsIgnoreCase("spPos")) {
       Serial.print(F("SPINDLE POS [mm]: "));
-      Serial.println(getSpindlePosition());
+      // Serial.println(getSpindlePosition());
     }
     else if (cmd.equalsIgnoreCase("getCW")) {
       Serial.print(F("FRAME CW COUNT: "));
-      Serial.println(getFrameCWCount());
+      // Serial.println(getFrameCWCount());
     }
     else if (cmd.equalsIgnoreCase("getCCW")) {
       Serial.print(F("FRAME CCW COUNT: "));
-      Serial.println(getFrameCCWCount());
+      // Serial.println(getFrameCCWCount());
     }
     else if (cmd.equalsIgnoreCase("resetCW")) {
-      resetFrameCWCount();
+      // resetFrameCWCount();
       Serial.println(F("FRAME CW COUNT RESET"));
     }
     else if (cmd.equalsIgnoreCase("resetCCW")) {
-      resetFrameCCWCount();
+      // resetFrameCCWCount();
       Serial.println(F("FRAME CCW COUNT RESET"));
     }
 
-    if (cmd.equalsIgnoreCase("testA_L")) {
-      motorA.enable();
-      motorA.setDirection(true);
-      for (int i = 0; i < (STEPS_PER_REV*MICROSTEPS/8*10); ++i) {
-        motorA.step();
-      };
-      motorA.disable();
-      Serial.println(F("testA_L OK"));
+    if (cmd.equalsIgnoreCase("testAL")) {
+      motorA.setRelativePosition(-10.0f);
+      Serial.println(F("Target_L set"));
+    }
+
+    if (cmd.equalsIgnoreCase("testAR")) {
+      motorA.setRelativePosition(10.0f);
+      Serial.println(F("Target_R set"));
     }
     
-    if (cmd.equalsIgnoreCase("testA_R")) {
-      motorA.enable();
-      motorA.setDirection(false);
-      for (int i = 0; i < (STEPS_PER_REV*MICROSTEPS/8*10); ++i) {
-        motorA.step();
-      };
-      motorA.disable();
-      Serial.println(F("testA_R OK"));
+    if (cmd.equalsIgnoreCase("testA")) {
+      motorA.run();
+      Serial.println(F("testA OK"));
     }
     
     if (cmd.equalsIgnoreCase("testB_CW")) {

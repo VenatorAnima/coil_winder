@@ -19,9 +19,9 @@ void StepperDriver::setDirection(bool cw) {
 void StepperDriver::step() {
   // Generate one pulse: 31 µs HIGH + 31 µs LOW → ~62 µs period
   digitalWrite(_stepPin, HIGH);
-  delayMicroseconds(31);
+  delayMicroseconds(26);
   digitalWrite(_stepPin, LOW);
-  delayMicroseconds(31);
+  delayMicroseconds(26);
 }
 
 void StepperDriver::enable() {
