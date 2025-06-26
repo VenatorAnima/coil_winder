@@ -1,6 +1,6 @@
 // main/Spindle.h
-#ifndef MOTOR_CONTROL_V2_H
-#define MOTOR_CONTROL_V2_H
+#ifndef SPINDLE_H
+#define SPINDLE_H
 
 #include <Arduino.h>
 #include <stdint.h>
@@ -23,11 +23,11 @@ extern volatile bool spindleWork;
 
 // --- CONSTANTS ---
 // The minimum period that is safe for maintaining proper operation [us]
-constexpr uint32_t MIN_PERIOD = (1 / ((MAX_RPM_SPINDLE * STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE) / (60 * 1000000.0)));
+constexpr uint32_t MIN_PERIOD_SPINDLE = (1 / ((MAX_RPM_SPINDLE * STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE) / (60 * 1000000.0)));
 // Pulse length time set to half the minimum signal period [us]
-constexpr uint32_t HIGH_PULSE_TIME = MIN_PERIOD / 2;
+constexpr uint32_t HIGH_PULSE_TIME_SPINDLE = MIN_PERIOD_SPINDLE / 2;
 // Maximum speed of the spindle carriage [mm/s]
-constexpr float MAX_SPEED = REV_TRAVEL_MM * ((1000000.0f / MIN_PERIOD) / (STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE));
+constexpr float MAX_SPEED_SPINDLE = REV_TRAVEL_MM * ((1000000.0f / MIN_PERIOD_SPINDLE) / (STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE));
 // Minimum speed of the spindle carriage [mm/s]
 
 
@@ -115,4 +115,4 @@ private:
 
 void TC6_Handler();
 
-#endif // MOTOR_CONTROL_V2_H
+#endif // SPINDLE_H

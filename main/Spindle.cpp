@@ -1,8 +1,8 @@
 // main/Spindle.cpp
 #include "Spindle.h"
 
-uint32_t currentPositionSpindle = 8 * 200 * 32;
-uint32_t targetPositionSpindle = 8 * 200 * 32;
+uint32_t currentPositionSpindle = 0;
+uint32_t targetPositionSpindle = 0;
 
 bool volatile spindleWork = LOW;
 
@@ -16,15 +16,15 @@ Spindle::Spindle(uint8_t dirPin, uint8_t stepPin, uint8_t enPin)
 
     float f = ((SCREW_LENGTH_MM / REV_TRAVEL_MM) * STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE);
     float r = roundf(f);
-    if (r > (float)INT32_MAX)               _maxPosition = 0;
-    else if (r < (float)INT32_MIN || r < 0) _maxPosition = 0;
-    else                                    _maxPosition = static_cast<int32_t>(r);
+    if (r > static_cast<float>(INT32_MAX))                  _maxPosition = 0;
+    else if (r < static_cast<float>(INT32_MIN) || r < 0)    _maxPosition = 0;
+    else                                                    _maxPosition = static_cast<int32_t>(r);
 
     _CLK_DIVIDER    = 2;
     _clkFreq        = SystemCoreClock / _CLK_DIVIDER;
     _KFreq          = _clkFreq / 1000000;
-    _RA_ticks       = calculateTicks(static_cast<float>(HIGH_PULSE_TIME));
-    _RC_ticks       = calculateTicks(static_cast<float>(MIN_PERIOD));
+    _RA_ticks       = calculateTicks(static_cast<float>(HIGH_PULSE_TIME_SPINDLE));
+    _RC_ticks       = calculateTicks(static_cast<float>(MIN_PERIOD_SPINDLE));
 
     pinMode(_dirPin, OUTPUT);
     pinMode(_stepPin, OUTPUT);
@@ -63,10 +63,10 @@ void Spindle::run() {
         return;
     } else if (targetPositionSpindle > currentPositionSpindle) {
         //right
-        setDirection(false);
+        setDirection(LOW);
     } else if (targetPositionSpindle < currentPositionSpindle) {
         //left
-        setDirection(true);
+        setDirection(HIGH);
     } else {
         // disable(); //dla testow usunac pozniej
         //spindleWork = LOW;
@@ -99,9 +99,9 @@ void Spindle::setTarget(int32_t target) {
 bool Spindle::setSpeed(float speed) {
     if (spindleWork) {
         return LOW;
-    } else if (speed > MAX_SPEED) {
+    } else if (speed > MAX_SPEED_SPINDLE) {
         //tutaj ustawic min period
-        setPeriod(MIN_PERIOD);
+        setPeriod(MIN_PERIOD_SPINDLE);
         return LOW;
     } else {
         //tutaj przeliczy period na bazie speed i ustawic
@@ -211,7 +211,7 @@ float Spindle::calculatePeriod(float speed) {
 }
 
 void Spindle::setPeriod(float period) {
-    float newPeriod = static_cast<float>(MIN_PERIOD);
+    float newPeriod = static_cast<float>(MIN_PERIOD_SPINDLE);
     if (newPeriod > period) {
         _RC_ticks = calculateTicks(newPeriod);
     } else {
