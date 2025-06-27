@@ -2,10 +2,10 @@
 #include <Arduino.h>
 #include "config.h"
 #include "pins.h"
-#include "MotorControl.h"
 #include "InputManager.h"
 #include "Spindle.h"
 #include "FrameRotation.h"
+#include "CommandParser.h"
 
 // Two steppers: A = spindle, B = frame
 // StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
@@ -56,77 +56,87 @@ void loop() {
   // }
   
   // simple test commands
-  if (Serial.available()) {
-    String cmd = Serial.readStringUntil('\n');
-    cmd.trim();
+  // if (Serial.available()) {
+  //   String cmd = Serial.readStringUntil('\n');
+  //   cmd.trim();
 
-    if (cmd.equalsIgnoreCase("home")) {
-      // homeSpindle();
-      motorA.home();
-      Serial.println(F("HOMING OK"));
-    }
-    else if (cmd.equalsIgnoreCase("spPos")) {
-      Serial.print(F("SPINDLE POS [mm]: "));
-      // Serial.println(getSpindlePosition());
-    }
-    else if (cmd.equalsIgnoreCase("getCW")) {
-      Serial.print(F("FRAME CW COUNT: "));
-      // Serial.println(getFrameCWCount());
-    }
-    else if (cmd.equalsIgnoreCase("getCCW")) {
-      Serial.print(F("FRAME CCW COUNT: "));
-      // Serial.println(getFrameCCWCount());
-    }
-    else if (cmd.equalsIgnoreCase("resetCW")) {
-      // resetFrameCWCount();
-      Serial.println(F("FRAME CW COUNT RESET"));
-    }
-    else if (cmd.equalsIgnoreCase("resetCCW")) {
-      // resetFrameCCWCount();
-      Serial.println(F("FRAME CCW COUNT RESET"));
-    }
+  //   if (cmd.equalsIgnoreCase("home")) {
+  //     // homeSpindle();
+  //     motorA.home();
+  //     Serial.println(F("HOMING OK"));
+  //   }
+  //   else if (cmd.equalsIgnoreCase("spPos")) {
+  //     Serial.print(F("SPINDLE POS [mm]: "));
+  //     // Serial.println(getSpindlePosition());
+  //   }
+  //   else if (cmd.equalsIgnoreCase("getCW")) {
+  //     Serial.print(F("FRAME CW COUNT: "));
+  //     // Serial.println(getFrameCWCount());
+  //   }
+  //   else if (cmd.equalsIgnoreCase("getCCW")) {
+  //     Serial.print(F("FRAME CCW COUNT: "));
+  //     // Serial.println(getFrameCCWCount());
+  //   }
+  //   else if (cmd.equalsIgnoreCase("resetCW")) {
+  //     // resetFrameCWCount();
+  //     Serial.println(F("FRAME CW COUNT RESET"));
+  //   }
+  //   else if (cmd.equalsIgnoreCase("resetCCW")) {
+  //     // resetFrameCCWCount();
+  //     Serial.println(F("FRAME CCW COUNT RESET"));
+  //   }
 
-    if (cmd.equalsIgnoreCase("testAL")) {
-      motorA.setRelativePosition(-10.0f);
-      Serial.println(F("Target_L set"));
-    }
+  //   if (cmd.equalsIgnoreCase("testAL")) {
+  //     motorA.setRelativePosition(-10.0f);
+  //     Serial.println(F("Target_L set"));
+  //   }
 
-    if (cmd.equalsIgnoreCase("testAR")) {
-      motorA.setRelativePosition(10.0f);
-      Serial.println(F("Target_R set"));
-    }
+  //   if (cmd.equalsIgnoreCase("testAR")) {
+  //     motorA.setRelativePosition(10.0f);
+  //     Serial.println(F("Target_R set"));
+  //   }
     
-    if (cmd.equalsIgnoreCase("testA")) {
-      motorA.run();
-      Serial.println(F("testA OK"));
-    }
+  //   if (cmd.equalsIgnoreCase("testA")) {
+  //     motorA.run();
+  //     Serial.println(F("testA OK"));
+  //   }
     
-    if (cmd.equalsIgnoreCase("testB_CW")) {
-      motorB.setRelativePosition(10.0f);
-      // motorB.setAbsolutePosition(10.0f);
-      // targetPositionFrameRotation = 10 * 200 * 32;
-      motorB.run();
-      Serial.println(F("testB_CW OK"));
-    }
+  //   if (cmd.equalsIgnoreCase("testB_CW")) {
+  //     motorB.setRelativePosition(10.0f);
+  //     // motorB.setAbsolutePosition(10.0f);
+  //     // targetPositionFrameRotation = 10 * 200 * 32;
+  //     motorB.run();
+  //     Serial.println(F("testB_CW OK"));
+  //   }
 
-    if (cmd.equalsIgnoreCase("testB_CCW")) {
-      motorB.setRelativePosition(-10.0f);
-      // motorB.setAbsolutePosition(-10.0f);
-      motorB.run();
-      Serial.println(F("testB_CCW OK"));
-    }
+  //   if (cmd.equalsIgnoreCase("testB_CCW")) {
+  //     motorB.setRelativePosition(-10.0f);
+  //     // motorB.setAbsolutePosition(-10.0f);
+  //     motorB.run();
+  //     Serial.println(F("testB_CCW OK"));
+  //   }
 
-    if (cmd.equalsIgnoreCase("testBS_U")) {
-      currentSpeedFrameRotation += 10;
-      motorB.setSpeed(currentSpeedFrameRotation);
-      Serial.println(F("testBS_U OK"));
-    }
+  //   if (cmd.equalsIgnoreCase("testBS_U")) {
+  //     currentSpeedFrameRotation += 10;
+  //     motorB.setSpeed(currentSpeedFrameRotation);
+  //     Serial.println(F("testBS_U OK"));
+  //   }
 
-    if (cmd.equalsIgnoreCase("testBS_D")) {
-      currentSpeedFrameRotation -= 10;
-      if (currentSpeedFrameRotation <= 0) currentSpeedFrameRotation = 1;
-      motorB.setSpeed(currentSpeedFrameRotation);
-      Serial.println(F("testBS_D OK"));
-    }
+  //   if (cmd.equalsIgnoreCase("testBS_D")) {
+  //     currentSpeedFrameRotation -= 10;
+  //     if (currentSpeedFrameRotation <= 0) currentSpeedFrameRotation = 1;
+  //     motorB.setSpeed(currentSpeedFrameRotation);
+  //     Serial.println(F("testBS_D OK"));
+  //   }
+  // }
+  
+  // Run one parser cycle; if unknown command, report error
+  if (CommandParser_process()) {
+    // recognized and executed
   }
+  else if (Serial.available()) {
+    Serial.print(F("ERR: "));
+    Serial.println(CommandParser_lastError());
+  }
+
 }
