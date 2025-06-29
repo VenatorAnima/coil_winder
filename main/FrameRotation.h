@@ -28,8 +28,8 @@ constexpr uint32_t MIN_PERIOD_FRAME_ROTATION = (1 / ((MAX_RPM_FRAME_ROTATION * S
 constexpr uint32_t HIGH_PULSE_TIME_FRAME_ROTATION = MIN_PERIOD_FRAME_ROTATION / 2;
 // Maximum speed of the spindle carriage [obr/min]
 constexpr float MAX_SPEED_FRAME_ROTATION = ((1000000.0f / MIN_PERIOD_FRAME_ROTATION) / (STEPS_PER_REV_FRAME_ROTATION * MICROSTEPS_FRAME_ROTATION)) * 60;
-// Minimum speed of the spindle carriage [mm/s]
-
+// Minimum speed of the spindle carriage [obr/min]
+constexpr float MIN_SPEED_FRAME_ROTATION = 10;
 
 /**
  * @brief Wraps raw DIR/ENABLE for frame rotation.

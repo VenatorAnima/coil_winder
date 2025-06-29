@@ -9,8 +9,8 @@
 
 // Two steppers: A = spindle, B = frame
 // StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
-Spindle motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
-FrameRotation motorB(B_DIR_PIN, B_STEP_PIN, B_ENABLE_PIN);
+Spindle motorSpindle(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
+FrameRotation motorFrameRotation(B_DIR_PIN, B_STEP_PIN, B_ENABLE_PIN);
 
 float currentSpeedFrameRotation = 20;
 
@@ -18,22 +18,19 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
+  CommandParser_init(motorSpindle, motorFrameRotation);
+  CommandParser_begin();
+
   // init inputs
-  Serial.println(F("1."));
   stopButton.begin();
   endstopA.begin();
-  pinMode(PROTOCOL_SELECT_PIN, INPUT_PULLUP);
 
   // motors
-  Serial.println(F("2."));
-  motorA.enable();
-  motorA.home();
+  motorSpindle.enable();
+  motorSpindle.home();
 
-  Serial.println(F("3."));
-  motorB.enable();
+  motorFrameRotation.enable();
 
-  Serial.println(F("READY"));
-  
   // Serial.println(F("=== ENDSTOP TEST ==="));
   // while(true) {
   //   bool raw = digitalRead(ENDSTOP_PIN);
@@ -133,8 +130,7 @@ void loop() {
   // Run one parser cycle; if unknown command, report error
   if (CommandParser_process()) {
     // recognized and executed
-  }
-  else if (Serial.available()) {
+  } else if (CommandParserErrorAvailable) {
     Serial.print(F("ERR: "));
     Serial.println(CommandParser_lastError());
   }

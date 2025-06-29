@@ -9,6 +9,10 @@
 #include "FrameRotation.h"
 // #include "CoilParams.h"
 
+extern bool CommandParserErrorAvailable;
+
+void CommandParser_init(Spindle& sp, FrameRotation& fr);
+
 /**
  * @brief Initialize the ASCII command parser.
  * 

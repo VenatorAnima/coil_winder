@@ -29,6 +29,7 @@ constexpr uint32_t HIGH_PULSE_TIME_SPINDLE = MIN_PERIOD_SPINDLE / 2;
 // Maximum speed of the spindle carriage [mm/s]
 constexpr float MAX_SPEED_SPINDLE = REV_TRAVEL_MM * ((1000000.0f / MIN_PERIOD_SPINDLE) / (STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE));
 // Minimum speed of the spindle carriage [mm/s]
+constexpr float MIN_SPEED_SPINDLE = 0.001;
 
 
 /**

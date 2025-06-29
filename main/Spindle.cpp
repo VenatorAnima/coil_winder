@@ -97,12 +97,14 @@ void Spindle::setTarget(int32_t target) {
 }
 
 bool Spindle::setSpeed(float speed) {
-    if (spindleWork) {
+    if (LOW) {
         return LOW;
     } else if (speed > MAX_SPEED_SPINDLE) {
         //tutaj ustawic min period
         setPeriod(MIN_PERIOD_SPINDLE);
         return LOW;
+    } else if (speed < MIN_SPEED_SPINDLE) {
+        setPeriod(calculatePeriod(0.001f));
     } else {
         //tutaj przeliczy period na bazie speed i ustawic
         setPeriod(calculatePeriod(speed));

@@ -54,24 +54,19 @@ void FrameRotation::disable() {
 
 void FrameRotation::run() {
     if (frameRotationWork) {
-        Serial.println(F("silnik juz dziala"));
         return;
     } else if (targetPositionFrameRotation > currentPositionFrameRotation) {
         //right
-        Serial.println(F("ustawiam ruch CW"));
         setDirection(LOW);
     } else if (targetPositionFrameRotation < currentPositionFrameRotation) {
         //left
-        Serial.println(F("ustawiam ruch CCW"));
         setDirection(HIGH);
     } else {
         // disable(); //dla testow usunac pozniej
-        //frameRotationWork = LOW;
-        Serial.println(F("obaw warunki nie spelnione"));
+        frameRotationWork = LOW;
         return;
     }
     frameRotationWork = HIGH;
-    Serial.println(F("Silnik odpalony"));
     // enable();
     PWM->PWM_IER1 = (1u << PWM_CH);
     PWM->PWM_ENA = (1u << PWM_CH);
@@ -92,14 +87,15 @@ void FrameRotation::setTarget(int32_t target) {
 }
 
 bool FrameRotation::setSpeed(float speed) {
-    if (frameRotationWork) {
+    if (LOW) {
         return LOW;
     } else if (speed > MAX_SPEED_FRAME_ROTATION) {
         //tutaj ustawic min period
         setPeriod(MIN_PERIOD_FRAME_ROTATION);
         return LOW;
-    } else if(speed <= 0.0f) {
-        setPeriod(calculatePeriod(0.0f));
+    } else if (speed < MIN_SPEED_FRAME_ROTATION) {
+        setPeriod(calculatePeriod(MIN_SPEED_FRAME_ROTATION));
+        return LOW;
     } else {
         //tutaj przeliczy period na bazie speed i ustawic
         setPeriod(calculatePeriod(speed));
@@ -121,7 +117,7 @@ void FrameRotation::setRelativePosition(float position) {
     if (frameRotationWork) {
         return;
     } 
-    setAbsolutePosition(calculatePosition(targetPositionFrameRotation) + position);
+    setAbsolutePosition( calculatePosition(currentPositionFrameRotation) + position);
 }
 
 
@@ -148,7 +144,10 @@ void FrameRotation::configureTimerPWM() {
     // Nie właczam tutaj kanalu PWM to robi run
 }
 
-float FrameRotation::calculatePeriod(float speed) {
+float FrameRotation:: calculatePeriod(float speed) {
+    if (speed <= 0.0f) {
+        return static_cast<float>(UINT32_MAX);
+    }
     // obr/min -> pulse/s
     float pulse = (speed / 60) * STEPS_PER_REV_SPINDLE * MICROSTEPS_SPINDLE;
     // pulse/s -> period [us]
@@ -177,7 +176,7 @@ int32_t FrameRotation::calculateTickPosition(float position) {
 }
 
 float FrameRotation::calculatePosition(int32_t ticks) {
-    return static_cast<float>(ticks / (STEPS_PER_REV_FRAME_ROTATION * MICROSTEPS_FRAME_ROTATION));
+    return static_cast<float>(ticks * 1.0f / (STEPS_PER_REV_FRAME_ROTATION * MICROSTEPS_FRAME_ROTATION));
 }
 
 
@@ -189,7 +188,6 @@ void PWM_Handler() {
         if (digitalRead(B_DIR_PIN)){
             currentPositionFrameRotation--; //jesli druga strona to zmienic na ++
             if (currentPositionFrameRotation <= targetPositionFrameRotation) {
-                Serial.println(F("0. Wylaczam silnik bo dotarla"));
                 PWM->PWM_IDR1 = (1u << PWM_CH);
                 PWM->PWM_DIS  = (1u << PWM_CH);
                 frameRotationWork = LOW;
@@ -197,7 +195,6 @@ void PWM_Handler() {
         } else {
             currentPositionFrameRotation++; //jesli druga strona to zmienic na --
             if (currentPositionFrameRotation >= targetPositionFrameRotation) {
-                Serial.println(F("1. Wylaczam silnik bo dotarla"));
                 PWM->PWM_IDR1 = (1u << PWM_CH);
                 PWM->PWM_DIS  = (1u << PWM_CH);
                 frameRotationWork = LOW;
