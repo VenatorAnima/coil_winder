@@ -78,7 +78,7 @@ public:
     void setRelativePosition(float position);
 
     /// @brief Ustawienie pozycji 0 przy wykorzystaniu krancowki
-    // void home();
+    void home();
 
 private:
   uint8_t _dirPin;

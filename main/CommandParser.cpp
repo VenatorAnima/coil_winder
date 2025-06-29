@@ -14,6 +14,7 @@ bool CommandParserErrorAvailable = LOW;
 
 static Spindle*         _spindle    = nullptr;
 static FrameRotation*   _frame      = nullptr;
+static GCodeParser*     _gCode      =nullptr;
 
 /// Type alias for a command handler function.
 using CmdHandler = bool(*)(const String& args);
@@ -27,6 +28,7 @@ static bool cmdTurn         (const String&);
 static bool cmdHome         (const String&);
 static bool cmdSpeed        (const String&);
 static bool cmdMove         (const String&);
+static bool cmdGCode        (const String&);
 
 /// Table of ASCII commands and their handlers.
 /// Add new lines here to easily extend later.
@@ -42,7 +44,8 @@ static const struct {
     {"turn",    cmdTurn,    "turn <revolutions>"},
     {"home",    cmdHome,    "home"},
     {"speed",   cmdSpeed,   "speed <frame/spindle> <value>"},
-    {"move",    cmdMove,    "move 0.1"}
+    {"move",    cmdMove,    "move 0.1"},
+    {"gcode",   cmdGCode,   "gcode G1 X10 A2 F60"},
 };
 
 static constexpr size_t COMMAND_COUNT = sizeof(commandTable) / sizeof(commandTable[0]);
@@ -50,9 +53,10 @@ static constexpr size_t COMMAND_COUNT = sizeof(commandTable) / sizeof(commandTab
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------
-void CommandParser_init(Spindle& sp, FrameRotation& fr) {
+void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc) {
     _spindle = &sp;
     _frame = &fr;
+    _gCode = &gc;
 }
 
 void CommandParser_begin() {
@@ -229,5 +233,13 @@ static bool cmdMove(const String& args) {
     _spindle->run();
 
     Serial.println(F("MOVE START"));
+    return true;
+}
+
+static bool cmdGCode(const String& args) {
+
+    _gCode->parseLine(args);
+
+    Serial.println(F("GCode approved"));
     return true;
 }

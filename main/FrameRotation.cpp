@@ -120,6 +120,11 @@ void FrameRotation::setRelativePosition(float position) {
     setAbsolutePosition( calculatePosition(currentPositionFrameRotation) + position);
 }
 
+void FrameRotation::home() {
+    currentPositionFrameRotation = 0;
+    targetPositionFrameRotation = 0;
+}
+
 
 // --- PRIVATE ---
 

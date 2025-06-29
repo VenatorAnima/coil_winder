@@ -7,11 +7,12 @@
 #include "pins.h"
 #include "Spindle.h"
 #include "FrameRotation.h"
+#include "GCodeParser.h"
 // #include "CoilParams.h"
 
 extern bool CommandParserErrorAvailable;
 
-void CommandParser_init(Spindle& sp, FrameRotation& fr);
+void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc);
 
 /**
  * @brief Initialize the ASCII command parser.
