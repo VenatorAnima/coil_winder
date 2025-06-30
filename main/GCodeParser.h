@@ -52,7 +52,7 @@ private:
      * @param hasA Whether an A parameter was provided.
      * @param aValue The A rotation count or offset.
      */
-    void handleLinearMove(bool hasX, float xValue, bool hasA, float aValue);
+    void handleLinearMove(bool hasX, float xValue, bool hasA, float aValue, bool modeG1);
 
     /**
      * Turn motors on (M3) or off (M5).

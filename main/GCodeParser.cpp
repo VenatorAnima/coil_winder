@@ -44,8 +44,11 @@ void GCodeParser::parseLine(const String& line) {
 
     // Linear moves G0/G1
     if (cmd.startsWith("G0") || cmd.startsWith("G1")) {
-        bool hasX = false, hasA = false;
+        bool hasX = false, hasA = false, modeG1 = false;
         float xVal = 0.0f, aVal = 0.0f;
+        if (cmd.startsWith("G1")) {
+            modeG1 = true;
+        }
         // Scan for parameters X, A, F
         for (int i = 0; i < cmd.length(); ++i) {
             char c = cmd.charAt(i);
@@ -60,7 +63,7 @@ void GCodeParser::parseLine(const String& line) {
                 feedRateA_ = cmd.substring(i+1).toFloat();
             }
         }
-        handleLinearMove(hasX, xVal, hasA, aVal);
+        handleLinearMove(hasX, xVal, hasA, aVal, modeG1);
     }
 }
 
@@ -68,26 +71,71 @@ void GCodeParser::parseLine(const String& line) {
  * Execute a linear (G0/G1) move on X and/or A axes.
  * Converts coordinate values based on the current mode.
  */
-void GCodeParser::handleLinearMove(bool hasX, float xValue, bool hasA, float aValue) {
+void GCodeParser::handleLinearMove(bool hasX, float xValue, bool hasA, float aValue, bool modeG1) {
     float targetX = currentX_;
     float targetA = currentA_;
     float time = 0.0f;
-    float speedSpindle = 1.0f;
+    float speedSpindle = 5.0f;
+    float speedFrame = feedRateA_;
+    float timeSpindle = 0.0f;
+    float timeFrame = 0.0f;
+
+    if (!modeG1) {
+        if (hasX && hasA) {
+            timeSpindle = abs(xValue) / MAX_SPEED_SPINDLE;
+            timeFrame = abs(aValue) / MAX_SPEED_FRAME_ROTATION * 60;
+            if (timeFrame >= timeSpindle) {
+                speedSpindle = abs(xValue) / timeFrame;
+                speedFrame = MAX_SPEED_FRAME_ROTATION;
+            } else {
+                speedFrame = abs(aValue) / timeSpindle * 60;
+                speedSpindle = MAX_SPEED_SPINDLE;
+            }
+            targetX = absoluteMode_ ? xValue : currentX_ + xValue;
+            targetA = absoluteMode_ ? aValue : currentA_ + aValue;
+        } else if (hasX) {
+            speedSpindle = MAX_SPEED_SPINDLE;
+            targetX = absoluteMode_ ? xValue : currentX_ + xValue;
+        } else if (hasA) {
+            speedFrame = MAX_SPEED_FRAME_ROTATION;
+            targetA = absoluteMode_ ? aValue : currentA_ + aValue;
+        }
+    } else {
+        if (hasX && hasA) {
+            timeSpindle = abs(xValue) / MAX_SPEED_SPINDLE;
+            timeFrame = abs(aValue) / feedRateA_ * 60;
+            if (timeFrame >= timeSpindle) {
+                speedSpindle = abs(xValue) / timeFrame;
+                speedFrame = feedRateA_;
+            } else {
+                speedFrame = abs(aValue) / timeSpindle * 60;
+                speedSpindle = MAX_SPEED_SPINDLE;
+            }
+            targetX = absoluteMode_ ? xValue : currentX_ + xValue;
+            targetA = absoluteMode_ ? aValue : currentA_ + aValue;
+        } else if (hasX) {
+            speedSpindle = 5.0f;
+            targetX = absoluteMode_ ? xValue : currentX_ + xValue;
+        } else if (hasA) {
+            speedFrame = feedRateA_;
+            targetA = absoluteMode_ ? aValue : currentA_ + aValue;
+        }
+    }
 
     // Compute new target positions
-    if (hasX) {
+    // if (hasX) {
         // Absolute vs. relative computation
-        targetX = absoluteMode_ ? xValue : currentX_ + xValue;
-    }
-    if (hasA) {
-        time = abs(aValue) / feedRateA_ * 60;
-        speedSpindle = abs(xValue) / time;
-        targetA = absoluteMode_ ? aValue : currentA_ + aValue;
-    }
+    //     targetX = absoluteMode_ ? xValue : currentX_ + xValue;
+    // }
+    // if (hasA) {
+    //     time = abs(aValue) / feedRateA_ * 60;
+    //     speedSpindle = abs(xValue) / time;
+    //     targetA = absoluteMode_ ? aValue : currentA_ + aValue;
+    // }
     
 
     // Set rotational speed (feedRateA_ is in rotations per minute)
-    frame_->setSpeed(feedRateA_);
+    frame_->setSpeed(speedFrame);
     // Rotate to the computed A target (in rotations)
     frame_->setAbsolutePosition(targetA);
 
