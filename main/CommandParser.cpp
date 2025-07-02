@@ -14,7 +14,8 @@ bool CommandParserErrorAvailable = LOW;
 
 static Spindle*         _spindle    = nullptr;
 static FrameRotation*   _frame      = nullptr;
-static GCodeParser*     _gCode      =nullptr;
+static GCodeParser*     _gCode      = nullptr;
+static CoilParams*      _coil       = nullptr;
 
 /// Type alias for a command handler function.
 using CmdHandler = bool(*)(const String& args);
@@ -39,7 +40,7 @@ static const struct {
 } commandTable[] = {
     {"help",    cmdHelp,    "help"},
     {"show",    cmdShow,    "show"},
-    {"set",     cmdSet,     "set <param> <value>"},
+    {"set",     cmdSet,     "set <module> <param> <value>"},
     {"rotate",  cmdRotate,  "rotate <deg>"},
     {"turn",    cmdTurn,    "turn <revolutions>"},
     {"home",    cmdHome,    "home"},
@@ -53,10 +54,11 @@ static constexpr size_t COMMAND_COUNT = sizeof(commandTable) / sizeof(commandTab
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------
-void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc) {
+void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co) {
     _spindle = &sp;
     _frame = &fr;
     _gCode = &gc;
+    _coil = &co;
 }
 
 void CommandParser_begin() {
@@ -120,28 +122,53 @@ static bool cmdHelp(const String&) {
 
 static bool cmdShow(const String&) {
     // Delegates to your CoilParams::print()
-    // params.print();
+    _coil->print();
     return true;
 }
 
 static bool cmdSet(const String& args) {
-    // Expect "<param> <value>"
-    int sp = args.indexOf(' ');
-    if (sp < 0) {
+    // Expect "<module> <param> <value>"
+    int sp1 = args.indexOf(' ');
+    if (sp1 < 0) {
         lastError = "Bad syntax";
         CommandParserErrorAvailable = HIGH;
         return false;
     }
-    String key   = args.substring(0, sp);
-    String value = args.substring(sp + 1);
+    String module = args.substring(0, sp1);
+    int sp2 = args.indexOf(' ', sp1 + 1);
+    if (sp2 < 0) {
+        lastError = "Bad syntax";
+        CommandParserErrorAvailable = HIGH;
+        return false;
+    }
+    String key   = args.substring(sp1 + 1, sp2);
+    String value = args.substring(sp2 + 1);
 
     // Try to set; returns false if name unknown or value invalid
-    // if (! params.set(key, value)) {
-    //     lastError = "Invalid param or value";
-    //     return false;
-    // }
+    bool ok = false;
+    if (module == "coil") {
+        // Tutaj wywolac funkcje z ustawiania cewki modul CoilParams i dac do zmiennej ok informacje czy sie udalo
+        ok = _coil->set(key, value);
+    } else if (module == "frame") {
+        // Tutaj wywolac funkcje z ustawiania karkasu modul FrameParams i dac do zmiennej ok informacje czy sie udalo
+        ok = true;
+    } else if (module == "logic") {
+        // Tutaj wywolac funkcje z ustawiania logiki nawijania cewki modul CoilLogic i dac do zmiennej ok informacje czy sie udalo
+        ok = true;
+    } else {
+        lastError = "Unknown module";
+        CommandParserErrorAvailable = HIGH;
+        return false;
+    }
+    if (!ok) {
+        lastError = "Invalid param or value";
+        CommandParserErrorAvailable = HIGH;
+        return false;
+    }
     Serial.print("OK ");
-    // Serial.println(key);
+    Serial.print(module);
+    Serial.print('.');
+    Serial.println(key);
     return true;
 }
 
@@ -162,11 +189,6 @@ static bool cmdRotate(const String& args) {
 
 static bool cmdTurn(const String& args) {
     int rev = args.toInt();
-    // if (rev < 0) {
-    //     lastError = "Revolutions must be ≥0";
-    //     CommandParserErrorAvailable = HIGH;
-    //     return false;
-    // }
 
     _frame->setRelativePosition(rev);
     _frame->run();
@@ -223,11 +245,6 @@ static bool cmdSpeed(const String& args) {
 
 static bool cmdMove(const String& args) {
     float distance = args.toFloat();
-    // if (rev < 0) {
-    //     lastError = "Revolutions must be ≥0";
-    //     CommandParserErrorAvailable = HIGH;
-    //     return false;
-    // }
 
     _spindle->setRelativePosition(distance);
     _spindle->run();

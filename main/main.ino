@@ -13,6 +13,7 @@
 Spindle motorSpindle(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
 FrameRotation motorFrameRotation(B_DIR_PIN, B_STEP_PIN, B_ENABLE_PIN);
 GCodeParser gCodeParser(&motorSpindle, &motorFrameRotation);
+CoilParams coilParams;
 
 float currentSpeedFrameRotation = 20;
 
@@ -20,7 +21,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  CommandParser_init(motorSpindle, motorFrameRotation, gCodeParser);
+  CommandParser_init(motorSpindle, motorFrameRotation, gCodeParser, coilParams);
   CommandParser_begin();
 
   gCodeParser.init();
