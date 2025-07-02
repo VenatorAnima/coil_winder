@@ -37,8 +37,8 @@ String centerText(const String& value, int width) {
  * Constructor: store references and set defaults.
  */
 CoilParams::CoilParams()
-    : _positionLeft(0.0f), _positionRight(0.0f), _width(0.0f), _Turns(0),
-      _wireDiameter(0.1f), _coilWindingDirection(true), _pitchWinding(0.1f) {}
+    : _positionLeft(0.0f), _positionRight(0.0f), _width(29.5f), _Turns(120),
+      _wireDiameter(0.35f), _coilWindingDirection(false), _pitchWinding(0.35f) {}
 
 bool CoilParams::set(const String& key, const String& value) {
     // Przeszukiwanie po wszystkich zarejestrowanych handler-ach
@@ -53,29 +53,32 @@ bool CoilParams::set(const String& key, const String& value) {
 
 void CoilParams::print() {
     Serial.println("");
-    Serial.println(centerText("Coil dimensions in [mm]", 32));
+    Serial.println("");
+    Serial.println("Module (coil)");
+    Serial.println("");
+    Serial.println(centerText("Coil dimensions in [mm]", 56));
     Serial.print("<-");
-    Serial.print(centerText("gap", 6));
+    Serial.print(centerText("(slide_left)", 16));
     Serial.print("->|<-");
-    Serial.print(centerText("coil", 6));
+    Serial.print(centerText("(width)", 10));
     Serial.print("->|<-");
-    Serial.print(centerText("gap", 6));
+    Serial.print(centerText("(slide_right)", 16));
     Serial.println("->");
-    Serial.print(centerText(String(_positionLeft, 1), 10));
+    Serial.print(centerText(String(_positionLeft, 1), 20));
     Serial.print("|");
-    Serial.print(centerText(String(_width, 1), 10));
+    Serial.print(centerText(String(_width, 1), 14));
     Serial.print("|");
-    Serial.println(centerText(String(_positionRight, 1), 10));
+    Serial.println(centerText(String(_positionRight, 1), 20));
     Serial.println("");
 
-    Serial.print("Winding wire diameter: ");
+    Serial.print("Winding wire diameter (diameter): ");
     Serial.print(_wireDiameter, 2);
     Serial.println(" mm");
 
-    Serial.print("Number of turns: ");
+    Serial.print("Number of turns (turns): ");
     Serial.println(_Turns);
 
-    Serial.print("Winding direction: ");
+    Serial.print("Winding direction (direction): ");
     if (_coilWindingDirection) {
         Serial.println("CW");
     } else {

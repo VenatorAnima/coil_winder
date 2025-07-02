@@ -5,6 +5,8 @@
 #include <Arduino.h>
 #include <limits>
 
+String centerText(const String& value, int width);
+
 /**
  * CoilParams holds all winding parameters and provides
  * a uniform set(key,value) interface.

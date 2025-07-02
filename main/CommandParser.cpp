@@ -12,10 +12,12 @@
 static String    lastError;
 bool CommandParserErrorAvailable = LOW;
 
-static Spindle*         _spindle    = nullptr;
-static FrameRotation*   _frame      = nullptr;
-static GCodeParser*     _gCode      = nullptr;
-static CoilParams*      _coil       = nullptr;
+static Spindle*         _spindle        = nullptr;
+static FrameRotation*   _frame          = nullptr;
+static GCodeParser*     _gCode          = nullptr;
+static CoilParams*      _coil           = nullptr;
+static FrameParams*     _frameParams    = nullptr;
+static CoilLogic*       _coilLogic      = nullptr;
 
 /// Type alias for a command handler function.
 using CmdHandler = bool(*)(const String& args);
@@ -54,11 +56,13 @@ static constexpr size_t COMMAND_COUNT = sizeof(commandTable) / sizeof(commandTab
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------
-void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co) {
+void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co, FrameParams& fr_p, CoilLogic& co_l) {
     _spindle = &sp;
     _frame = &fr;
     _gCode = &gc;
     _coil = &co;
+    _frameParams = &fr_p;
+    _coilLogic = &co_l;
 }
 
 void CommandParser_begin() {
@@ -123,6 +127,8 @@ static bool cmdHelp(const String&) {
 static bool cmdShow(const String&) {
     // Delegates to your CoilParams::print()
     _coil->print();
+    _frameParams->print();
+    _coilLogic->print();
     return true;
 }
 
@@ -151,10 +157,10 @@ static bool cmdSet(const String& args) {
         ok = _coil->set(key, value);
     } else if (module == "frame") {
         // Tutaj wywolac funkcje z ustawiania karkasu modul FrameParams i dac do zmiennej ok informacje czy sie udalo
-        ok = true;
+        ok = _frameParams->set(key, value);
     } else if (module == "logic") {
         // Tutaj wywolac funkcje z ustawiania logiki nawijania cewki modul CoilLogic i dac do zmiennej ok informacje czy sie udalo
-        ok = true;
+        ok = _coilLogic->set(key, value);
     } else {
         lastError = "Unknown module";
         CommandParserErrorAvailable = HIGH;
@@ -257,6 +263,7 @@ static bool cmdGCode(const String& args) {
 
     _gCode->parseLine(args);
 
-    Serial.println(F("GCode approved"));
+    Serial.print(F("G-CODE: "));
+    Serial.println(args);
     return true;
 }

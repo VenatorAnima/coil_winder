@@ -7,6 +7,8 @@
 #include "FrameRotation.h"
 #include "CommandParser.h"
 #include "GCodeParser.h"
+#include "FrameParams.h"
+#include "CoilParams.h"
 
 // Two steppers: A = spindle, B = frame
 // StepperDriver motorA(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
@@ -14,6 +16,8 @@ Spindle motorSpindle(A_DIR_PIN, A_STEP_PIN, A_ENABLE_PIN);
 FrameRotation motorFrameRotation(B_DIR_PIN, B_STEP_PIN, B_ENABLE_PIN);
 GCodeParser gCodeParser(&motorSpindle, &motorFrameRotation);
 CoilParams coilParams;
+FrameParams frameParams;
+CoilLogic coilLogic;
 
 float currentSpeedFrameRotation = 20;
 
@@ -21,9 +25,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  CommandParser_init(motorSpindle, motorFrameRotation, gCodeParser, coilParams);
-  CommandParser_begin();
-
+  CommandParser_init(motorSpindle, motorFrameRotation, gCodeParser, coilParams, frameParams, coilLogic);
   gCodeParser.init();
 
   // init inputs
@@ -35,6 +37,7 @@ void setup() {
   motorSpindle.home();
 
   motorFrameRotation.enable();
+  CommandParser_begin();
 }
 
 void loop() {

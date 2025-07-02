@@ -9,10 +9,12 @@
 #include "FrameRotation.h"
 #include "GCodeParser.h"
 #include "CoilParams.h"
+#include "FrameParams.h"
+#include "CoilLogic.h"
 
 extern bool CommandParserErrorAvailable;
 
-void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co);
+void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co, FrameParams& fr_p, CoilLogic& co_l);
 
 /**
  * @brief Initialize the ASCII command parser.
