@@ -51,6 +51,27 @@ bool CoilParams::set(const String& key, const String& value) {
     return false;
 }
 
+template<>
+bool CoilParams::get<bool>(const String& key, bool& out) {
+    if (key == "coilWindingDirection") {out = _coilWindingDirection; return true;}
+    return false;
+}
+
+template<>
+bool CoilParams::get<int>(const String& key, int& out) {
+    if (key == "Turns") {out = _Turns; return true;}
+    return false;
+}
+
+template<>
+bool CoilParams::get<float>(const String& key, float& out) {
+    if (key == "wireDiameter") {out = _wireDiameter; return true;}
+    if (key == "width") {out = _width; return true;}
+    if (key == "positionRight") {out = _positionRight; return true;}
+    if (key == "positionLeft") {out = _positionLeft; return true;}
+    return false;
+}
+
 void CoilParams::print() {
     Serial.println("");
     Serial.println("");

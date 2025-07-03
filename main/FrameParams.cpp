@@ -26,6 +26,23 @@ bool FrameParams::set(const String& key, const String& value) {
     return false;
 }
 
+template<>
+bool FrameParams::get<bool>(const String& key, bool& out) {
+    return false;
+}
+
+template<>
+bool FrameParams::get<int>(const String& key, int& out) {
+    return false;
+}
+
+template<>
+bool FrameParams::get<float>(const String& key, float& out) {
+    if (key == "frameOffset") {out = _frameOffset; return true;}
+    if (key == "width") {out = _width; return true;}
+    return false;
+}
+
 void FrameParams::print() {
     Serial.println("");
     Serial.println("");

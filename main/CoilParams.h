@@ -24,6 +24,9 @@ public:
      */
     bool set(const String& key, const String& value);
 
+    template<typename T>
+    bool get(const String& key, T& out);
+    
     void print();
 
 

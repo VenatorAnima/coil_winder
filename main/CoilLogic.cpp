@@ -32,6 +32,28 @@ bool CoilLogic::set(const String& key, const String& value) {
     return false;
 }
 
+template<>
+bool CoilLogic::get<bool>(const String& key, bool& out) {
+    if (key == "windFromTheLeft") {out = _windFromTheLeft; return true;}
+    if (key == "endAtStartingPoint") {out = _endAtStartingPoint; return true;}
+    return false;
+}
+
+template<>
+bool CoilLogic::get<int>(const String& key, int& out) {
+    if (key == "turnsBegin") {out = _turnsBegin; return true;}
+    if (key == "turnsSlow") {out = _turnsSlow; return true;}
+    return false;
+}
+
+template<>
+bool CoilLogic::get<float>(const String& key, float& out) {
+    if (key == "speedBegin") {out = _speedBegin; return true;}
+    if (key == "speedSlow") {out = _speedSlow; return true;}
+    if (key == "speedWork") {out = _speedWork; return true;}
+    return false;
+}
+
 void CoilLogic::print() {
     Serial.println("");
     Serial.println("");
