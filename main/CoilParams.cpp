@@ -37,8 +37,8 @@ String centerText(const String& value, int width) {
  * Constructor: store references and set defaults.
  */
 CoilParams::CoilParams()
-    : _positionLeft(0.0f), _positionRight(0.0f), _width(29.5f), _Turns(120),
-      _wireDiameter(0.35f), _coilWindingDirection(false), _pitchWinding(0.35f) {}
+    : _positionLeft(0.0f), _positionRight(0.0f), _width(29.5f), _Turns(65),
+      _wireDiameter(0.45f), _coilWindingDirection(false), _pitchWinding(0.45f) {}
 
 bool CoilParams::set(const String& key, const String& value) {
     // Przeszukiwanie po wszystkich zarejestrowanych handler-ach
@@ -59,7 +59,7 @@ bool CoilParams::get<bool>(const String& key, bool& out) {
 
 template<>
 bool CoilParams::get<int>(const String& key, int& out) {
-    if (key == "Turns") {out = _Turns; return true;}
+    if (key == "turns") {out = _Turns; return true;}
     return false;
 }
 

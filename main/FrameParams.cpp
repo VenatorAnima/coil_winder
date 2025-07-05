@@ -13,7 +13,7 @@ const FrameParams::ParamHandler FrameParams::_handlers[] = {
  * Constructor: store references and set defaults.
  */
 FrameParams::FrameParams()
-    : _frameOffset(2.5f), _width(29.5f) {}
+    : _frameOffset(6.5f), _width(29.5f) {}
 
 bool FrameParams::set(const String& key, const String& value) {
     // Przeszukiwanie po wszystkich zarejestrowanych handler-ach

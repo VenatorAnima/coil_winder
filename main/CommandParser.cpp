@@ -18,6 +18,7 @@ static GCodeParser*     _gCode          = nullptr;
 static CoilParams*      _coil           = nullptr;
 static FrameParams*     _frameParams    = nullptr;
 static CoilLogic*       _coilLogic      = nullptr;
+static GCodeBuilder*    _gCodeBuilder   = nullptr;
 
 /// Type alias for a command handler function.
 using CmdHandler = bool(*)(const String& args);
@@ -32,6 +33,7 @@ static bool cmdHome         (const String&);
 static bool cmdSpeed        (const String&);
 static bool cmdMove         (const String&);
 static bool cmdGCode        (const String&);
+static bool cmdRun          (const String&);
 
 /// Table of ASCII commands and their handlers.
 /// Add new lines here to easily extend later.
@@ -49,6 +51,7 @@ static const struct {
     {"speed",   cmdSpeed,   "speed <frame/spindle> <value>"},
     {"move",    cmdMove,    "move 0.1"},
     {"gcode",   cmdGCode,   "gcode G1 X10 A2 F60"},
+    {"run",     cmdRun,     "run"},
 };
 
 static constexpr size_t COMMAND_COUNT = sizeof(commandTable) / sizeof(commandTable[0]);
@@ -56,13 +59,14 @@ static constexpr size_t COMMAND_COUNT = sizeof(commandTable) / sizeof(commandTab
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------
-void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co, FrameParams& fr_p, CoilLogic& co_l) {
+void CommandParser_init(Spindle& sp, FrameRotation& fr, GCodeParser& gc, CoilParams& co, FrameParams& fr_p, CoilLogic& co_l, GCodeBuilder& gc_b) {
     _spindle = &sp;
     _frame = &fr;
     _gCode = &gc;
     _coil = &co;
     _frameParams = &fr_p;
     _coilLogic = &co_l;
+    _gCodeBuilder = &gc_b;
 }
 
 void CommandParser_begin() {
@@ -129,6 +133,10 @@ static bool cmdShow(const String&) {
     _coil->print();
     _frameParams->print();
     _coilLogic->print();
+    _gCodeBuilder->reloadParameters();
+    if (_gCodeBuilder->validateParameters()) {
+        _gCodeBuilder->calculateAuxiliary();
+        _gCodeBuilder->print();}
     return true;
 }
 
@@ -266,4 +274,9 @@ static bool cmdGCode(const String& args) {
     Serial.print(F("G-CODE: "));
     Serial.println(args);
     return true;
+}
+
+static bool cmdRun(const String& args) {
+    _gCodeBuilder->createGCodeList();
+    _gCodeBuilder->executeAll();
 }

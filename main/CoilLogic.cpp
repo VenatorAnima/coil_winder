@@ -18,8 +18,8 @@ const CoilLogic::ParamHandler CoilLogic::_handlers[] = {
  * Constructor: store references and set defaults.
  */
 CoilLogic::CoilLogic()
-    : _turnsBegin(2), _turnsSlow(3), _speedBegin(10.0f), _speedSlow(60.0f), _speedWork(160.0f),
-      _windFromTheLeft(true), _endAtStartingPoint(true) {}
+    : _turnsBegin(2), _turnsSlow(3), _speedBegin(20.0f), _speedSlow(40.0f), _speedWork(80.0f),
+      _windFromTheLeft(false), _endAtStartingPoint(false) {}
 
 bool CoilLogic::set(const String& key, const String& value) {
     // Przeszukiwanie po wszystkich zarejestrowanych handler-ach
