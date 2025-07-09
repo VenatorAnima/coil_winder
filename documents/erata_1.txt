@@ -1,0 +1,12 @@
+Dokument uzupełnia „specyfikację_urzadzenia.txt” o ustalenia wynikające z aktualnego *Project Plan*.
+
+--------------------------------------------------------------------
+1. Zmiana pin-ów w silnikach
+   • A: 4/5/12   
+   • B: 7/6/8
+
+2. Maksymalna prędkość obrotowa silników to 150 RPM
+
+3. Obsługa przycisku awaryjnego zatrzymania (STOP) tak, żeby mógł zatrzymać działanie urządzenia w każdym momencie (przerwanie)
+
+4. Obsługa przycisku krańcówki ENDSTOP, tak, żeby w każdym momencie zatrzymywał dalszy ruch silnika w tym kierunku , globalna blokująca ruch silnika A dalej w lewo (direction => true = CCW/left), jedynie umożliwienie ruchu w prawo (direction => false = CW/right)(przerwanie)

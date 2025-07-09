@@ -1,0 +1,44 @@
+Dokument uzupełnia „specyfikację_urzadzenia.txt” o ustalenia wynikające z aktualnego *Project Plan*.
+
+--------------------------------------------------------------------
+1. Nazwa pliku szkicu
+   • `main.ino` – wymóg Arduino IDE 2.3.6 (plik musi nosić nazwę katalogu).
+
+2. Sterowanie silnikami krokowymi
+   • Używamy biblioteki **AccelStepper**.  
+   • Własna warstwa `MotorControl.cpp/.h` opakowuje AccelStepper i udostępnia:  
+     `moveTo()`, `run()`, `enable()`, `disable()`, konfigurację mikrokroków oraz rampę przyspieszeń.
+
+3. Strategia testów
+   • Rezygnujemy z testów PC-side (emulator, pytest). Wszystkie testy przeprowadzamy wyłącznie na realnym sprzęcie.
+
+4. Moduł ETA
+   • Obliczenia prognozy czasu zakończenia przeniesione do osobnego pliku  
+     `ETA.cpp/.h`, aby odciążyć `CoilLogic` i ułatwić testy jednostkowe.
+
+5. Warunki zakończenia nawijania
+   Przyjmujemy dwa parametry konfiguracyjne w `config.h`  
+   - `Z_NOPITCH` – liczba zwojów wykonywanych **in-place** przy przejściu na kolejną warstwę  
+   - `Z_SLOW`    – liczba zwojów z wolną prędkością na początek/koniec warstwy  
+
+   Algorytm dla ostatniej warstwy, w której pozostało `n` zwojów:
+   • Jeśli `n < Z_NOPITCH`  
+     ⇒ wykonaj `n` zwojów **in-place**, następnie **stop**.  
+   • Jeśli `n < 2 × Z_SLOW`  
+     ⇒ wykonaj `Z_NOPITCH` zwojów **in-place**,  
+        a następnie `n − Z_NOPITCH` zwojów z **minimalnym pitchem**, po czym **stop**.
+
+6. Struktura plików (skrót)
+	main/
+	├── main.ino
+	├── config.h • stałe mechaniczne i zakresy
+	├── pins.h • wszystkie definicje pinów
+	├── MotorControl.* • warstwa nad AccelStepper
+	├── Homing.* • procedura zerowania osi A
+	├── CommandParser.* • parser ASCII/JSON
+	├── CoilLogic.* • algorytm wielowarstwowy + przejścia
+	├── StateMachine.* • logika stanów BOOT → ERROR
+	├── FlashStorage.* • zapisy/odczyty do Flash
+	├── Diagnostics.* • Dry Run / testy podzespołów
+	└── Emergency.* • obsługa E-STOP
+--------------------------------------------------------------------

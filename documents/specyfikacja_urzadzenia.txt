@@ -89,8 +89,9 @@ SPECYFIKACJA URZĄDZENIA DO NAWIJANIA CEWEK NA KARKASACH
 	- Mikrokrok: 1/16 (konfigurowalne dla obu silników)
 	- Silniki: 200 kroków na obrót
 	- Krańcówka: Normalnie otwarta (NO)
-	- Pin wyboru protokołu: 22
+	- Wyborór protokołu: pin 22
 	- Przycisk STOP: pin 24
+	- Krańcówka A: pin 26
 	- Piny DRV8825:
 		- Silnik A: DIR Pin 7, STEP Pin 6, ENABLE Pin 8
 		- Silnik B: DIR Pin 4, STEP Pin 5, ENABLE Pin 12
